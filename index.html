@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff;font-family:Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#141414;font-weight:450}
+a{color:#141414;text-decoration:underline;text-decoration-color:#adadad}a:hover{color:#707070}
+input::placeholder{color:#adadad}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#ffffff">
+  <div style="position:sticky;top:16px;z-index:10;display:flex;justify-content:center;padding:16px 16px 0">
+    <nav style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;background:#f3f3f3;border-radius:9999px;padding:6px;max-width:100%">
+      <span style="font-weight:650;font-size:15px;padding:0 12px 0 10px;white-space:nowrap">Estudo Claude</span>
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <button onClick="{{ n.go }}" style="{{ n.style }}">{{ n.label }}</button>
+      </sc-for>
+    </nav>
+  </div>
+
+  <header style="max-width:960px;margin:0 auto;padding:96px 24px 80px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px">
+    <span style="display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:9999px;background:#f3f3f3;font-size:12px;font-weight:600">Caderno de estudo · 28/09/2026 · Giovanna</span>
+    <h1 style="margin:0;font-size:clamp(44px,8vw,80px);font-weight:650;line-height:1;text-wrap:balance">Claude no terminal x no Antigravity.</h1>
+    <p style="margin:0;font-size:20px;font-weight:300;line-height:1.38;color:#141414;max-width:640px;text-wrap:pretty">Compara os dois jeitos de usar o Claude, sem exigir conhecimento de programação.</p>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
+      <button onClick="{{ goGloss }}" style="height:44px;padding:0 20px;border-radius:9999px;border:none;background:#141414;color:#ffffff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer" style-hover="background:#262626">Abrir glossário</button>
+      <button onClick="{{ goTests }}" style="height:44px;padding:0 20px;border-radius:9999px;border:1px solid #e0e0e0;background:#ffffff;color:#141414;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer" style-hover="background:#f3f3f3">Ver testes</button>
+    </div>
+  </header>
+
+  <main style="max-width:1120px;margin:0 auto;padding:0 24px;display:flex;flex-direction:column;gap:120px">
+
+    <section id="como-usar" data-screen-label="Como usar" style="display:flex;flex-direction:column;gap:32px">
+      <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13">Como usar este guia.</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        <div style="background:#f3f3f3;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:20px;font-weight:600;line-height:1.3">Glossário</div>
+          <div style="font-size:14px;line-height:1.43;color:#707070;text-wrap:pretty">Cada termo com o nome correto, uma explicação fácil e um exemplo do dia a dia.</div>
+        </div>
+        <div style="background:#f3f3f3;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:20px;font-weight:600;line-height:1.3">Roteiro de testes</div>
+          <div style="font-size:14px;line-height:1.43;color:#707070;text-wrap:pretty">Tarefas de SEO para fazer nos dois lugares e anotar o que achou.</div>
+        </div>
+        <div style="background:#f3f3f3;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:20px;font-weight:600;line-height:1.3">Histórico</div>
+          <div style="font-size:14px;line-height:1.43;color:#707070;text-wrap:pretty">Registra quando cada termo novo entrou no glossário.</div>
+        </div>
+      </div>
+      <p style="margin:0;font-size:14px;color:#707070">Se alguma explicação ficar confusa, deixe um comentário no próprio texto que ela é reescrita de um jeito mais simples.</p>
+    </section>
+
+    <section id="glossario" data-screen-label="Glossário" style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13">Glossário.</h2>
+          <p style="margin:0;font-size:20px;font-weight:300;line-height:1.38">{{ glossCountLabel }}</p>
+        </div>
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar termo" style="height:44px;width:300px;max-width:100%;box-sizing:border-box;border-radius:16px;background:#f0f0f0;border:none;padding:12px 16px;font-family:inherit;font-size:16px;font-weight:450;color:#141414;outline:none" style-focus="box-shadow:0 0 0 2px #141414">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{ letters }}" as="l" hint-placeholder-count="12">
+          <button onClick="{{ l.go }}" style="width:36px;height:36px;border-radius:9999px;border:none;background:#f3f3f3;color:#141414;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#e0e0e0">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+        <sc-for list="{{ terms }}" as="t" hint-placeholder-count="6">
+          <article style="background:#ffffff;border:1px solid #f0f0f0;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <h3 style="margin:0;font-size:24px;font-weight:650;line-height:1.25">{{ t.term }}</h3>
+              <sc-if value="{{ t.isNew }}" hint-placeholder-val="{{ false }}">
+                <span style="height:24px;display:inline-flex;align-items:center;padding:0 10px;border-radius:9999px;background:#0066ff;color:#ffffff;font-size:12px;font-weight:600">Novo</span>
+              </sc-if>
+            </div>
+            <p style="margin:0;font-size:16px;line-height:1.38;text-wrap:pretty">{{ t.meaning }}</p>
+            <div style="background:#f3f3f3;border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;margin-top:auto">
+              <div style="font-size:12px;font-weight:600;color:#707070">Exemplo</div>
+              <div style="font-size:14px;line-height:1.43;text-wrap:pretty">{{ t.example }}</div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#f3f3f3;border-radius:24px;padding:48px;text-align:center;font-size:16px;color:#707070">Nenhum termo encontrado para “{{ query }}”.</div>
+      </sc-if>
+    </section>
+
+    <section id="atalhos" data-screen-label="Atalhos" style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:760px">
+        <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13;text-wrap:balance">Atalhos que funcionam diferente no Antigravity.</h2>
+        <p style="margin:0;font-size:20px;font-weight:300;line-height:1.38;text-wrap:pretty">No terminal do Antigravity (e do VS Code), o Ctrl + V de sempre funciona para texto, mas costuma falhar com imagens.</p>
+      </div>
+      <div style="background:#f3f3f3;border-radius:24px;padding:32px;display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+          <h3 style="margin:0;font-size:24px;font-weight:650;line-height:1.25">Colar um print no Claude Code.</h3>
+          <div style="display:flex;gap:4px;background:#e0e0e0;border-radius:9999px;padding:4px">
+            <sc-for list="{{ osTabs }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.go }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+          <div style="background:#ffffff;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:14px;font-weight:600">Atalho que funciona</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <sc-for list="{{ os.ok }}" as="k" hint-placeholder-count="2">
+                <span style="{{ k.style }}">{{ k.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#ffffff;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:14px;font-weight:600;color:#707070">O que evitar</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <sc-for list="{{ os.avoid }}" as="k" hint-placeholder-count="2">
+                <span style="{{ k.style }}">{{ k.label }}</span>
+              </sc-for>
+            </div>
+            <div style="font-size:14px;line-height:1.43;color:#707070;text-wrap:pretty">{{ os.avoidNote }}</div>
+          </div>
+        </div>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+            <li style="display:flex;gap:16px;align-items:flex-start">
+              <span style="flex:0 0 32px;height:32px;border-radius:9999px;background:#141414;color:#ffffff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ s.n }}</span>
+              <span style="font-size:16px;line-height:1.38;padding-top:6px;text-wrap:pretty">{{ s.text }}</span>
+            </li>
+          </sc-for>
+        </ol>
+        <p style="margin:0;font-size:14px;line-height:1.43;color:#707070">Se o balão [Image #1] não aparecer, a imagem não foi colada: tente o atalho de novo antes de enviar a mensagem.</p>
+      </div>
+    </section>
+
+    <section id="comandos" data-screen-label="Comandos" style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:760px">
+        <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13">Comandos de conversa e sessão.</h2>
+        <p style="margin:0;font-size:20px;font-weight:300;line-height:1.38">Digite no terminal durante a conversa. Todos começam com uma barra (/).</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ commands }}" as="c" hint-placeholder-count="4">
+          <div style="background:#f3f3f3;border-radius:16px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;align-items:start">
+            <div style="font-size:32px;font-weight:650;line-height:1.13">{{ c.cmd }}</div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:12px;font-weight:600;color:#707070">O que faz</div>
+              <div style="font-size:16px;line-height:1.38;text-wrap:pretty">{{ c.what }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:12px;font-weight:600;color:#707070">Quando usar</div>
+              <div style="font-size:16px;line-height:1.38;text-wrap:pretty">{{ c.when }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin:0;font-size:14px;line-height:1.43;color:#707070;max-width:760px;text-wrap:pretty">Para o Claude ver a versão mais nova de um arquivo que você mudou, não precisa de comando: ele lê o arquivo de novo toda vez que vai usá-lo. Basta dizer, por exemplo: “atualizei o artigo, lê de novo”.</p>
+    </section>
+
+    <section id="testes" data-screen-label="Roteiro de testes" style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:12px;max-width:760px">
+          <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13">Roteiro de testes.</h2>
+          <p style="margin:0;font-size:20px;font-weight:300;line-height:1.38;text-wrap:pretty">Faça cada tarefa nos dois lugares, com o mesmo pedido. Nota de 1 (ruim) a 5 (ótimo).</p>
+        </div>
+        <span style="display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:9999px;background:#f3f3f3;font-size:12px;font-weight:600">{{ testsDone }}</span>
+      </div>
+      <div style="border:1px solid #f0f0f0;border-radius:24px;overflow-x:auto">
+        <table style="width:100%;min-width:760px;border-collapse:collapse;font-size:14px;line-height:1.43">
+          <thead>
+            <tr style="background:#f3f3f3">
+              <th style="text-align:left;padding:12px 16px;font-size:12px;font-weight:450;color:#707070">Tarefa</th>
+              <th style="text-align:left;padding:12px 16px;font-size:12px;font-weight:450;color:#707070">Pedido para copiar e colar</th>
+              <th style="text-align:center;padding:12px 16px;font-size:12px;font-weight:450;color:#707070">Terminal</th>
+              <th style="text-align:center;padding:12px 16px;font-size:12px;font-weight:450;color:#707070">Antigravity</th>
+              <th style="text-align:left;padding:12px 16px;font-size:12px;font-weight:450;color:#707070">Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ tests }}" as="r" hint-placeholder-count="6">
+              <tr style="border-top:1px solid #e0e0e0">
+                <td style="padding:16px;font-weight:600;vertical-align:top;white-space:nowrap">{{ r.task }}</td>
+                <td style="padding:16px;vertical-align:top">
+                  <div style="display:flex;gap:12px;align-items:flex-start">
+                    <span style="flex:1;text-wrap:pretty">{{ r.prompt }}</span>
+                    <button onClick="{{ r.copy }}" style="flex:0 0 auto;height:28px;padding:0 12px;border-radius:9999px;border:none;background:#f3f3f3;color:#141414;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:#e0e0e0">{{ r.copyLabel }}</button>
+                  </div>
+                </td>
+                <td style="padding:16px;text-align:center;vertical-align:top"><span style="{{ r.t1Style }}">{{ r.t1 }}</span></td>
+                <td style="padding:16px;text-align:center;vertical-align:top"><span style="{{ r.t2Style }}">{{ r.t2 }}</span></td>
+                <td style="padding:16px;vertical-align:top;color:#707070;text-wrap:pretty">{{ r.notes }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <div style="border:1px solid #f0f0f0;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:20px;font-weight:600;line-height:1.3">O que observar em cada teste</div>
+          <sc-for list="{{ criteria }}" as="c" hint-placeholder-count="5">
+            <div style="font-size:14px;line-height:1.43;color:#707070"><strong style="color:#141414;font-weight:600">{{ c.k }}:</strong> {{ c.v }}</div>
+          </sc-for>
+        </div>
+        <div style="background:#f3f3f3;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:20px;font-weight:600;line-height:1.3">Onde deve aparecer mais diferença</div>
+          <div style="font-size:16px;line-height:1.38;text-wrap:pretty">Os testes 4 (skill) e 6 (memória), porque skills e memória são recursos do Claude Code e podem não existir no Antigravity.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="historico" data-screen-label="Histórico" style="display:flex;flex-direction:column;gap:32px">
+      <h2 style="margin:0;font-size:clamp(32px,4.5vw,44px);font-weight:650;line-height:1.13">Histórico de atualizações.</h2>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ history }}" as="h" hint-placeholder-count="6">
+          <div style="background:#f3f3f3;border-radius:16px;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 24px">
+            <div style="flex:0 0 150px;font-size:12px;font-weight:600;color:#707070">{{ h.date }} · Versão {{ h.v }}</div>
+            <div style="flex:1 1 320px;font-size:16px;line-height:1.38;text-wrap:pretty">{{ h.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+
+  <footer style="margin-top:120px;background:#141414;color:#ffffff;border-radius:24px 24px 0 0;padding:80px 24px 48px">
+    <div style="max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:clamp(44px,7vw,80px);font-weight:650;line-height:1">Estudo Claude.</div>
+        <div style="font-size:16px;color:#adadad">Terminal x Antigravity · Última atualização em 28/09/2026</div>
+      </div>
+      <button onClick="{{ goTop }}" style="height:44px;padding:0 20px;border-radius:9999px;border:none;background:#262626;color:#ffffff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer" style-hover="background:#333333">Voltar ao topo</button>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { query: '', active: '', os: 'win', copied: -1 };
+
+  G = [
+    ['Agente','Uma IA que não só responde, mas também executa tarefas sozinha, passo a passo.','Pedir “revise este artigo” e o Claude abrir o texto, pesquisar a SERP e devolver a revisão pronta.'],
+    ['Antigravity','Programa do Google com janelas, botões e menus, onde também dá para conversar com o Claude.','Como um Word feito para programadores, com uma IA ao lado.'],
+    ['Atalho de teclado','Combinação de teclas apertadas juntas para fazer algo rápido, sem usar o mouse. Pode mudar de um programa para outro.','Ctrl + C para copiar. No terminal do Antigravity, para colar um print no Claude Code, o atalho é Alt + V.'],
+    ['Claude','A inteligência artificial da Anthropic, a “cabeça” que pensa e responde. É a mesma nos dois lugares.','O profissional que você contratou para ajudar.'],
+    ['Claude Code','O programa que deixa o Claude trabalhar no seu computador: ler e criar arquivos, pesquisar e usar suas ferramentas.','O “escritório da Anthropic”, onde ficam suas skills e sua memória.'],
+    ['Comando (ou comando de barra)','Uma palavra que começa com / e que você digita no terminal para o Claude Code fazer uma ação pronta, em vez de conversar.','Digitar /model para trocar o modelo, ou /rewind para desfazer o último passo.'],
+    ['Contexto','As informações de fundo que você dá junto com o pedido: para quem é, qual o objetivo, quais arquivos usar e o que já foi feito. Quanto melhor o contexto, menos o Claude precisa adivinhar.','Em vez de só “escreva um título”, dizer “escreva um título para um artigo sobre crédito imobiliário, para quem vai comprar o primeiro imóvel, com até 60 caracteres”.'],
+    ['IDE (ou editor)','Programa com janelas para escrever e organizar arquivos. A sigla vem do inglês e significa “ambiente de desenvolvimento integrado”.','O Antigravity e o VS Code são IDEs.'],
+    ['MCP (ou conector)','Uma “ponte” que liga o Claude a outro serviço, para ele ler ou mexer nas informações de lá.','O conector do Google Drive, que deixa o Claude ler um artigo salvo no Drive.'],
+    ['Memória','Anotações que o Claude Code guarda e lê em todas as conversas, para lembrar das suas preferências.','A anotação “sempre falar em português do Brasil”.'],
+    ['Modelo','A versão da inteligência artificial. Modelos diferentes têm velocidade e capacidade diferentes.','Claude Opus (mais caprichado) e Claude Haiku (mais rápido).'],
+    ['Prompt','O pedido ou a mensagem que você escreve para a IA.','“Sugira 5 pautas para o blog X.”'],
+    ['Sessão','Uma conversa inteira com o Claude, do momento em que você abre até fechar ou limpar (/clear).','Como uma reunião: tudo o que foi dito nela fica registrado até ela acabar.'],
+    ['Skill','Uma “receita” pronta que ensina o Claude a fazer uma tarefa específica sempre do mesmo jeito.','A skill de revisão de SEO para guest posts.'],
+    ['Subagente','Um assistente especialista que o Claude principal chama para fazer uma tarefa só. Ele trabalha separado e devolve apenas o resultado pronto.','Um coordenador que passa a correção de um texto para o revisor do time e recebe só o texto corrigido.'],
+    ['Terminal','A tela preta ou azul onde você digita texto em vez de clicar em botões.','A janela onde você conversa com o Claude Code.'],
+    ['Token','O pedacinho de texto que a IA usa para medir o que lê e escreve. Cada mensagem gasta tokens, e é assim que o uso e a cota são contados.','Um artigo longo colado na conversa gasta mais tokens do que uma pergunta curta, como uma conta de luz que sobe com o uso.'],
+    ['WSL','Um recurso do Windows que deixa rodar o Linux (outro sistema) dentro do próprio Windows. A sigla vem do inglês “Windows Subsystem for Linux”.','Como ter um segundo computador dentro do seu, usado por quem programa.'],
+  ];
+  NEWEST = ['Contexto'];
+
+  OS = {
+    win: { label: 'Windows', ok: ['Alt','V'], avoid: ['Ctrl','V'], avoidNote: 'Não funciona para imagens e falha sem aparecer nenhum aviso. Vale também para o WSL.' },
+    mac: { label: 'macOS', ok: ['Ctrl','V'], avoid: ['Cmd','V'], avoidNote: 'No Mac, o Cmd + V de sempre não cola a imagem no terminal.' },
+    linux: { label: 'Linux', ok: ['Ctrl','V'], avoid: [], avoidNote: 'Nada a evitar: o atalho padrão funciona.' },
+  };
+
+  COMMANDS = [
+    ['/rewind','Volta para um ponto anterior da conversa, desfazendo a última mensagem, resposta ou alteração em arquivo.','O Claude mudou um texto de um jeito que você não queria e você quer voltar ao que era antes.'],
+    ['/cost ou /usage','Mostra quanto a sessão já consumiu: /cost mostra os tokens gastos na conversa, /usage mostra quanto da cota do seu plano já foi usada.','Antes de uma tarefa grande, para ver se ainda tem cota sobrando.'],
+    ['/model','Troca o modelo do Claude no meio da conversa, sem perder o que já foi dito.','Usar um modelo mais rápido para tarefas simples e um mais caprichado para revisões.'],
+    ['/clear','Apaga o histórico da conversa atual e começa uma sessão nova, do zero, sem fechar o terminal. Suas skills e sua memória continuam lá.','Terminou a revisão de um artigo e vai começar outro assunto: limpar evita que o Claude misture os dois.'],
+  ];
+
+  TESTS = [
+    ['1. Conversa simples','“Explique o que é E-E-A-T em 3 frases simples.”','','',''],
+    ['2. Sugestão de pautas','“Sugira 5 pautas de blog sobre [tema do cliente].”','','',''],
+    ['3. Revisão de texto','“Revise este parágrafo para SEO: [cole o texto].”','','',''],
+    ['4. Usar uma skill','“Use a skill de revisão de SEO neste artigo: [link do Google Docs].”','','',''],
+    ['5. Pesquisa na internet','“Quais são os 3 primeiros resultados do Google para [palavra-chave]?”','5','5','Ambas disseram que só conseguem pesquisar na SERP dos EUA.'],
+    ['6. Memória','Abra uma conversa nova e pergunte: “Em que idioma você deve falar comigo?”','10','10','Ambos lembraram na mesma hora.'],
+  ];
+
+  CRITERIA = [
+    ['Facilidade','foi fácil saber onde clicar ou digitar?'],
+    ['Qualidade','a resposta ficou boa e útil para o seu trabalho?'],
+    ['Ferramentas','as skills, a memória e os conectores funcionaram?'],
+    ['Velocidade','demorou muito para responder?'],
+    ['Controle','ele pediu sua permissão antes de fazer algo importante?'],
+  ];
+
+  HISTORY = [
+    'Termo Contexto (módulo 2 — Conversar bem).',
+    'Termo Subagente.',
+    'Comando /clear na seção de comandos e nota sobre como o Claude lê arquivos atualizados.',
+    'Seção “Comandos úteis de conversa e sessão no terminal” (/rewind, /cost ou /usage, /model) e termos Comando, Sessão e Token.',
+    'Seção “Atalhos que funcionam diferente no Antigravity” (colar print) e termos Atalho de teclado e WSL.',
+    'Primeira versão: Agente, Antigravity, Claude, Claude Code, IDE, MCP, Memória, Modelo, Prompt, Skill e Terminal.',
+  ];
+
+  SECTIONS = [['glossario','Glossário'],['atalhos','Atalhos'],['comandos','Comandos'],['testes','Testes'],['historico','Histórico']];
+
+  componentDidMount() {
+    this._onScroll = () => {
+      let cur = '';
+      for (const [id] of this.SECTIONS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top < 160) cur = id;
+      }
+      if (cur !== this.state.active) this.setState({ active: cur });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); clearTimeout(this._t); }
+
+  goTo(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'smooth' });
+  }
+
+  key(label) {
+    return { label, style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 48, minWidth: 48, padding: '0 16px', boxSizing: 'border-box', borderRadius: 9999, background: '#f3f3f3', fontSize: 20, fontWeight: 600, color: '#141414' } };
+  }
+  withPlus(keys) {
+    const out = [];
+    keys.forEach((k, i) => { if (i) out.push({ label: '+', style: { color: '#adadad', fontSize: 20, fontWeight: 300 } }); out.push(this.key(k)); });
+    if (!keys.length) out.push({ label: '—', style: { color: '#adadad', fontSize: 24 } });
+    return out;
+  }
+  score(v) {
+    const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 32, minWidth: 40, padding: '0 12px', boxSizing: 'border-box', borderRadius: 9999, fontSize: 14, fontWeight: 600 };
+    if (!v) return { label: '—', style: { ...base, color: '#adadad', background: '#f3f3f3' } };
+    return { label: v, style: { ...base, color: '#ffffff', background: '#141414' } };
+  }
+
+  renderVals() {
+    const { query, active, os, copied } = this.state;
+    const q = query.trim();
+    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const terms = this.G.filter(g => !q || norm(g.join(' ')).includes(norm(q))).map(([term, meaning, example]) => ({ term, meaning, example, isNew: this.NEWEST.includes(term) }));
+    const letterSet = [...new Set(this.G.map(g => g[0][0].toUpperCase()))];
+
+    const nav = this.SECTIONS.map(([id, label]) => {
+      const on = active === id;
+      return {
+        label, go: () => this.goTo(id),
+        style: { height: 36, padding: '0 14px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, background: on ? '#141414' : 'transparent', color: on ? '#ffffff' : '#141414' },
+      };
+    });
+
+    const letters = letterSet.map(L => ({
+      label: L,
+      go: () => this.setState({ query: '' }, () => {
+        const idx = this.G.findIndex(g => g[0][0].toUpperCase() === L);
+        const el = document.querySelectorAll('#glossario article')[idx];
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'smooth' });
+      }),
+    }));
+
+    const osTabs = Object.entries(this.OS).map(([k, o]) => ({
+      label: o.label, go: () => this.setState({ os: k }),
+      style: { height: 36, padding: '0 16px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, background: os === k ? '#ffffff' : 'transparent', color: os === k ? '#141414' : '#707070', boxShadow: os === k ? '0 1px 2px rgba(0,0,0,.06)' : 'none' },
+    }));
+    const O = this.OS[os];
+
+    const steps = [
+      'Tire o print normalmente (no Windows, Windows + Shift + S).',
+      'Clique na linha onde você escreve para o Claude Code.',
+      'Use o atalho do seu sistema: ' + O.ok.join(' + ') + '.',
+      'Confira se apareceu um balão escrito [Image #1] onde está o cursor. Se apareceu, a imagem foi colada.',
+      'Escreva sua mensagem e aperte Enter. Exemplo: “o que tem na [Image #1]?” ou “corrija o erro visual que aparece na [Image #1]”.',
+    ].map((text, i) => ({ n: String(i + 1), text }));
+
+    const tests = this.TESTS.map(([task, prompt, a, b, notes], i) => {
+      const s1 = this.score(a), s2 = this.score(b);
+      return {
+        task, prompt, notes: notes || '—', t1: s1.label, t1Style: s1.style, t2: s2.label, t2Style: s2.style,
+        copyLabel: copied === i ? 'Copiado' : 'Copiar',
+        copy: () => { navigator.clipboard?.writeText(prompt.replace(/[“”]/g, '')).catch(() => {}); this.setState({ copied: i }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ copied: -1 }), 1500); },
+      };
+    });
+    const done = this.TESTS.filter(t => t[2] || t[3]).length;
+
+    return {
+      nav, letters, terms, query,
+      onQuery: e => this.setState({ query: e.target.value }),
+      noResults: terms.length === 0,
+      glossCountLabel: q ? `${terms.length} de ${this.G.length} termos encontrados.` : `${this.G.length} termos, em ordem alfabética.`,
+      goGloss: () => this.goTo('glossario'),
+      goTests: () => this.goTo('testes'),
+      goTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+      osTabs, os: { ok: this.withPlus(O.ok), avoid: this.withPlus(O.avoid), avoidNote: O.avoidNote }, steps,
+      commands: this.COMMANDS.map(([cmd, what, when]) => ({ cmd, what, when })),
+      tests, testsDone: `${done} de ${this.TESTS.length} com nota`,
+      criteria: this.CRITERIA.map(([k, v]) => ({ k, v })),
+      history: this.HISTORY.map((text, i) => ({ text, date: '28/09/2026', v: String(this.HISTORY.length - i) })),
+    };
+  }
+}
+</script>
+</body>
+</html>
